@@ -1,4 +1,4 @@
-### RASA X Simple Installer (RSI) 
+# RASA X Simple Installer (RSI) 
 
 RSI will help you to get an easy way to run and test RASA X / RASA OSS on your local workstation with a breeze.
 
@@ -12,7 +12,7 @@ RSI will check Requirments and install for the supported OS:
 - kind
 - RASA X official Helmchart
 
-## Requirements
+### Requirements
 
 Supported OS:
 
@@ -45,7 +45,7 @@ after installation you can access RASA X via -> http://localhost/
 password: test
 
 
-# Installation
+## Installation
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh)"
@@ -57,15 +57,15 @@ Note - The defaults of the install script can be overridden see the built-in hel
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh)" -- --help
 ```
 
-# FAQ
+## FAQ
 
-# how do I see all logfiles
+### how do I see all logfiles
 
 ```bash
 kubectl -n rasa logs -l app.kubernetes.io/name=rasa-x
 ```
 
-# how do i remove the RSI Cluster locally 
+### how do i remove the RSI Cluster locally 
 
 ```bash
 bash rsi.sh -u
