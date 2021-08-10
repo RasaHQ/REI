@@ -35,11 +35,13 @@ TL:DR;
 curl -O https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh && bash rsi.sh --yes
 ```
 
+or
+
 ```bash
 wget https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh && bash rsi.sh --yes
 ```
 
-after installation -> http://localhost/ 
+after installation you can access RASA X via -> http://localhost/ 
 password: test
 
 
