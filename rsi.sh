@@ -230,16 +230,6 @@ check_install_macos() {
 check_install_ubuntu() {
   check_sudo
 
-# curl installation
-  if has curl; then
-    allgood "found curl"
-  else
-    warn "cannot find curl - installing it via apt"
-    confirm "installing curl via apt"
-    sudo_cmd "sudo apt-get install curl --yes"
-    allgood "installed curl"
-  fi      
-
 # Docker installation
   if has docker; then 
     allgood "found docker"
@@ -416,6 +406,7 @@ check_os_install_kind()
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # check what Linux distribution we are running
         distribution="$(check_linux_distribution)"
+        check_mem
 
         # found manjaro OS
         if [[ "${distribution}" =~ "Manjaro" ]]; then
@@ -435,6 +426,7 @@ check_os_install_kind()
      
     # Detecting OS
     elif [[ "$OSTYPE" == "darwin"* ]]; then
+        check_mem
         # Mac OSX
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
@@ -478,6 +470,12 @@ check_sudo() {
   fi
 }
 
+check_mem() {
+  MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
+  MEM=$((MEM/1000))
+  if (( $MEM < 8192 )); then error "Your Workstation needs to have (at least) 8G of memory."; fi
+}
+
 # finalize with helm at end
 kind_finalize_rasax() {
 
@@ -503,7 +501,7 @@ kind_finalize_rasax() {
     info "Creating KIND RASA Cluster"
     info "This will take some minutes..."
 
-    cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RASADSA/DSI/main/kind/kind-rasa-config.yaml"
+    cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
     cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
     cmd "rm /tmp/kind-rasa-config.yaml"
 
@@ -515,10 +513,10 @@ kind_finalize_rasax() {
     cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
     cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
 
-    warn "==================================================================="
-    warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
+    warn "================================================================================="
+    warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
     warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
-    warn "===================================================================="
+    warn "================================================================================="
 
     sleep 480
 
@@ -533,10 +531,10 @@ kind_finalize_rasax() {
 
 # finalize with rasaxctl at end
 # TODO: rasaxctl binary download
-kind_finalize_rasaxctl() {
+kind_finalize_rasactl() {
 
   info "Creating KIND RASA Cluster"
-  cmd "curl -Lo /tmp/kind-rasa-config.yamlhttps://raw.githubusercontent.com/RASADSA/DSI/main/kind/kind-rasa-config.yaml"
+  cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RASADSA/DSI/main/kind/kind-rasa-config.yaml"
   cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
   cmd "rm /tmp/kind-rasa-config.yaml"
   allgood "KIND RASA cluster creation finished"
