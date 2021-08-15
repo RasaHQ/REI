@@ -288,7 +288,7 @@ check_install_ubuntu() {
     warn "cannot find helm"
     confirm "installing helm via apt"
 
-    sudo_cmd "curl https://baltocdn.com/helm/signing.asc | apt-key add -"
+    sudo_cmd "curl -s https://baltocdn.com/helm/signing.asc | apt-key add -"
     sudo_cmd "apt-get install apt-transport-https --yes"
     sudo_cmd "echo 'deb https://baltocdn.com/helm/stable/debian/ all main' | tee /etc/apt/sources.list.d/helm-stable-debian.list"
     sudo_cmd "apt-get update"
