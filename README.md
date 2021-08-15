@@ -4,6 +4,8 @@ RSI will help you to get an easy way to run and test RASA X / RASA OSS on your l
 
 ## How does RSI manage the installation
 
+RSI installs KIND as Platform to run RASA X / OSS Helmchart on top.
+
 RSI will check Requirments and install for the supported OS:
 
 - Docker
@@ -59,14 +61,33 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh)"
 
 ## FAQ
 
-### how do I see all logfiles
+### how do I see all logfiles ?
+
+to get all logfiles from the RASA X / OSS Deployment just run in your terminal
 
 ```bash
 kubectl -n rasa logs -l app.kubernetes.io/name=rasa-x
 ```
 
-### how do i remove the RSI Cluster locally 
+### how do i remove the RSI Cluster locally ?
+
+excute the rsi.sh script with the -u flag
 
 ```bash
 bash rsi.sh -u
+```
+
+### how do i see all running RASA containers ?
+
+all running pods are inside the rasa namespace via kubectl
+
+```bash
+kubectl -n rasa get pods
+```
+
+### how do i access the KIND K8S Cluster via kubectl ?
+
+```bash
+kubectl cluster-info --context kind-rasa
+
 ```
