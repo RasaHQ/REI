@@ -476,6 +476,33 @@ check_mem() {
   if (( $MEM < 8192 )); then error "Your Workstation needs to have (at least) 8G of memory."; fi
 }
 
+wait_for_deployment() {
+  # need to wait for a moment on kubernetes
+  sleep 60
+
+  i=0 
+  tput sc 
+  while [[ $(kubectl -n rasa get pods -l app.kubernetes.io/name=rasa-x -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') =~ "False" ]] ; do
+    case $(($i % 10)) in
+        0 ) j="▁" ;;
+			  1 ) j="▃" ;;
+			  2 ) j="▄" ;;
+        3 ) j="▅" ;;
+			  4 ) j="▆" ;;
+			  5 ) j="▇" ;;
+			  6 ) j="▆" ;;
+			  7 ) j="▅" ;;
+			  8 ) j="▄" ;;
+			  9 ) j="▃" ;;
+    esac
+    tput rc
+    echo -en " \r[$j] Waiting for other Helm deployment to finish..." 
+    sleep 0.5
+    ((i=i+1)) 
+done
+
+}
+
 # finalize with helm at end
 kind_finalize_rasax() {
 
@@ -488,10 +515,10 @@ kind_finalize_rasax() {
 
     warn "==================================================================="
     warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
-    warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
+    warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
     warn "===================================================================="
 
-    sleep 480
+    wait_for_deployment
 
     allgood "Helmchart deployed"
     allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
@@ -518,7 +545,7 @@ kind_finalize_rasax() {
     warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
     warn "================================================================================="
 
-    sleep 480
+    wait_for_deployment
 
     allgood "Helmchart deployed"
     allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
