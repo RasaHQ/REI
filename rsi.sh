@@ -426,7 +426,7 @@ check_os_install_kind()
      
     # Detecting OS
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        check_mem
+        #check_mem
         # Mac OSX
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
