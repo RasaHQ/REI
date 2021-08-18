@@ -402,23 +402,28 @@ check_install_arch() {
 # Check what OS we are running on
 check_os_install_kind()
 {
-    info "Detecting OS..."
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # check what Linux distribution we are running
         distribution="$(check_linux_distribution)"
-        check_mem
 
         # found manjaro OS
         if [[ "${distribution}" =~ "Manjaro" ]]; then
+           preflight_check
+           info "Detecting OS..."
            allgood "found ${distribution}"
            check_install_arch
         elif [[ "${distribution}" =~ "CentOS" ]]; then
+           preflight_check
+           info "Detecting OS..."
            allgood "found ${distribution}"
            warn "not implemented... yet "
         elif [[ "${distribution}" =~ "Ubuntu" ]]; then
+           preflight_check
+           info "Detecting OS..."
            allgood "found ${distribution}"
            check_install_ubuntu
         else 
+           info "Detecting OS..."
            info "${distribution}"
            error "unknown distribution"
            exit 1
@@ -426,7 +431,6 @@ check_os_install_kind()
      
     # Detecting OS
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        check_mem
         # Mac OSX
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
@@ -470,6 +474,46 @@ check_sudo() {
   fi
 }
 
+preflight_check() {
+
+    allgood "Preflight check..."
+
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+      freemem=`free -g | awk '/^Mem:/{print $2}'`
+      freedisk=`df --block-size=1G --output=avail "$PWD" | tail -n1` 
+      openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+      freemem=`top -l 1 -s 0 | grep PhysMem | sed 's/, /\n         /g'`
+      freedisk=`df -h`
+      openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
+    fi
+
+    if [[ $freedisk -lt 30 ]]; then              
+       error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS" 
+       error "Please free at least 30 GB of local disk and run the script again"
+       exit 1
+    fi;
+
+    if [[ $freemem -lt 8 ]]; then              
+       error "We have only ${freemem} GB of Free Memory which is not enough to Run RASA X / RASA OSS" 
+       error "Please free at least 8 GB of local memory and run the script again"
+       exit 1
+    fi;
+
+
+    if [[ $openports =~ "*:80 (LISTEN)" ]]; then              
+       error "We detected that port 80 is already occupied - please close the application and run the script again"
+       exit 1
+    elif [[ $openports =~ "*:443 (LISTEN)" ]]; then
+       error "We detected that port 443 is already occupied - please close the application and run the script again"
+       exit 1
+    fi
+
+  allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}" 
+  allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
+  # exit 1
+}
+
 check_mem() {
   MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
   MEM=$((MEM/1000))
@@ -500,6 +544,7 @@ wait_for_deployment() {
     sleep 0.5
     ((i=i+1)) 
 done
+echo "\n"
 
 }
 
