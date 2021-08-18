@@ -1,8 +1,11 @@
 name: install RSI
 on: [push]
 jobs:
-  build:
+  install_ubuntu:
     runs-on: ubuntu-latest
+    env:
+      TERM: xterm-256color
+      COLORTERM: truecolor
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
