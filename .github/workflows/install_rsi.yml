@@ -13,5 +13,5 @@ jobs:
       - run: echo "🖥️ run bash rsi.sh --yes"
       - name: run RSI install
         run: |
-          bash rsi.sh ---yes
+          bash rsi.sh --yes
       - run: echo "🍏 This job's status is ${{ job.status }}."
