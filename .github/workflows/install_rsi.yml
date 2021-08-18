@@ -2,12 +2,10 @@ name: Pull Request Test && Merge
 on: [pull_request]
 jobs:
 
-  strategy:
+  install:
+    strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
-
-
-  install:
     runs-on: ${{ matrix.os }}
     env:
       TERM: xterm-256color
