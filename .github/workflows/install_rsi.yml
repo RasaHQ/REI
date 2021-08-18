@@ -20,7 +20,7 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   install_macos:
-    runs-on: macosx10.15
+    runs-on: macos-latest
     env:
       TERM: xterm-256color
       COLORTERM: truecolor
