@@ -1,5 +1,9 @@
 name: automerge
 on:
+ workflow_run:
+    workflows: ["Pull Request Test && Merge"]
+    types: 
+      - completed
   pull_request:
     types:
       - labeled
