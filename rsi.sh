@@ -501,7 +501,7 @@ preflight_check() {
        exit 1
     fi;
 
-    if [[ $freemem -lt 8 ]]; then              
+    if [[ $freemem -lt 6 ]]; then              
        error "We have only ${freemem} GB of Free Memory which is not enough to Run RASA X / RASA OSS" 
        error "Please free at least 8 GB of local memory and run the script again"
        exit 1
