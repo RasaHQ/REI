@@ -561,6 +561,11 @@ kind_finalize_rasax() {
   if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
     info "found RASA KIND cluster"
 
+    warn "switching kubectl context to: kind-rasa"
+    warn "========================================="
+    warn "kubectl cluster-info --context kind-rasa"
+    warn "========================================="
+
     cmd "kubectl cluster-info --context kind-rasa"
 
     cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
@@ -586,6 +591,11 @@ kind_finalize_rasax() {
     cmd "rm /tmp/kind-rasa-config.yaml"
 
     allgood "KIND RASA cluster creation finished"
+
+    warn "switching kubectl context to: kind-rasa"
+    warn "========================================="
+    warn "kubectl cluster-info --context kind-rasa"
+    warn "========================================="
 
     cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
     cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
