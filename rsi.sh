@@ -518,8 +518,6 @@ preflight_check() {
 
   allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}" 
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
-  echo "\n"
-  # exit 1
 }
 
 check_mem() {
