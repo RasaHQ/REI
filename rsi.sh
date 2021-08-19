@@ -432,6 +432,8 @@ check_os_install_kind()
     # Detecting OS
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
+        preflight_check
+        info "Detecting OS..."
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
 	      
@@ -483,9 +485,14 @@ preflight_check() {
       freedisk=`df --block-size=1G --output=avail "$PWD" | tail -n1` 
       openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-      freemem=`top -l 1 -s 0 | grep PhysMem | sed 's/, /\n         /g'`
-      freedisk=`df -h`
-      openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
+      fmem=$(vm_stat | grep free | awk '{ print $3 }' | sed 's/\.//')
+      inmem=$(vm_stat | grep inactive | awk '{ print $3 }' | sed 's/\.//')
+      specmem=$(vm_stat | grep speculative | awk '{ print $3 }' | sed 's/\.//')
+      freemem=$((($fmem+specmem)*4096/1048576))
+      inactive=$(($inmem*4096/1048576))
+      total=$((($freemem+$inactive)))
+      freedisk=`df -g | awk ' { print $4, " ", $9 } ' |grep "\/$" | awk ' { print $1 }'`
+      openports=`lsof -nP -iTCP -sTCP:LISTEN`
     fi
 
     if [[ $freedisk -lt 30 ]]; then              
@@ -511,6 +518,7 @@ preflight_check() {
 
   allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}" 
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
+  echo "\n"
   # exit 1
 }
 
