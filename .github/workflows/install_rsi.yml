@@ -22,3 +22,13 @@ jobs:
         run: |
           bash rsi.sh --yes
       - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  add_label:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ startsWith(github.event.comment.body, '/add-labels') }}
+        with:
+          labels: automerge
