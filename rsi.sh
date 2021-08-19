@@ -561,6 +561,8 @@ kind_finalize_rasax() {
   if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
     info "found RASA KIND cluster"
 
+    cmd "kubectl cluster-info --context kind-rasa"
+
     cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
     cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
 
@@ -658,6 +660,9 @@ Options
 
   -u, --uninstall
     uninstall RASA X / RASA OSS installation
+
+  -x, --just-install
+    Install rasactl binary and all depencies for KIND but dont create a KIND Cluster and install the chart
 
 EOT
 }
