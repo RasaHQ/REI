@@ -520,12 +520,6 @@ preflight_check() {
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
 }
 
-check_mem() {
-  MEM=`grep MemTotal /proc/meminfo | awk '{print $2}'`
-  MEM=$((MEM/1000))
-  if (( $MEM < 8192 )); then error "Your Workstation needs to have (at least) 8G of memory."; fi
-}
-
 wait_for_deployment() {
   # need to wait for a moment on kubernetes
   sleep 60
