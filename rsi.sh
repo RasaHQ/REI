@@ -2,6 +2,9 @@
 
 ### Variables Settings and hashmaps to run everything
 
+RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases"
+RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
+
 # colors
 
 BOLD="$(tput bold 2>/dev/null || printf '')"
@@ -520,6 +523,14 @@ preflight_check() {
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
 }
 
+install_rasactl() {
+
+RASACTL_BASEURL
+RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
+
+
+}
+
 wait_for_deployment() {
   # need to wait for a moment on kubernetes
   sleep 60
@@ -551,32 +562,70 @@ echo "\n"
 # finalize with helm at end
 kind_finalize_rasax() {
 
+  if [ -z ${NO_RASAX_INSTALL+x} ]; then
 
-  if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
-    info "found RASA KIND cluster"
+    if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
 
-    warn "switching kubectl context to: kind-rasa"
-    warn "========================================="
-    warn "kubectl cluster-info --context kind-rasa"
-    warn "========================================="
+      info "found RASA KIND cluster"
 
-    cmd "kubectl cluster-info --context kind-rasa"
+      warn "switching kubectl context to: kind-rasa"
+      warn "========================================="
+      warn "kubectl cluster-info --context kind-rasa"
+      warn "========================================="
 
-    cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-    cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
+      cmd "kubectl cluster-info --context kind-rasa"
 
-    warn "==================================================================="
-    warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
-    warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
-    warn "===================================================================="
+      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
+      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
 
-    wait_for_deployment
+      warn "==================================================================="
+      warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
+      warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
+      warn "===================================================================="
 
-    allgood "Helmchart deployed"
-    allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-    allgood "Password: ${BOLD}test${NOCOLOR}"
+      wait_for_deployment
+
+      allgood "Helmchart deployed"
+      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
+      allgood "Password: ${BOLD}test${NOCOLOR}"
+
+    else
+      info "Creating KIND RASA Cluster"
+      info "This will take some minutes..."
+
+      cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
+      cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
+      cmd "rm /tmp/kind-rasa-config.yaml"
+
+      allgood "KIND RASA cluster creation finished"
+
+      warn "switching kubectl context to: kind-rasa"
+      warn "========================================="
+      warn "kubectl cluster-info --context kind-rasa"
+      warn "========================================="
+
+      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+
+      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
+      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
+
+      warn "================================================================================="
+      warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
+      warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
+      warn "================================================================================="
+
+      wait_for_deployment
+
+      allgood "Helmchart deployed"
+      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
+      allgood "Password: ${BOLD}test${NOCOLOR}"
+
+      warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
+    fi
 
   else
+    
     info "Creating KIND RASA Cluster"
     info "This will take some minutes..."
 
@@ -586,29 +635,17 @@ kind_finalize_rasax() {
 
     allgood "KIND RASA cluster creation finished"
 
-    warn "switching kubectl context to: kind-rasa"
-    warn "========================================="
-    warn "kubectl cluster-info --context kind-rasa"
-    warn "========================================="
+    info "================================================================================="
+    info "Since you choose the --just-install flag "
+    info "you can now your rasactl to kickstart a local rasax installation run"
+    info "kubectl cluster-info --context kind-rasa"
+    info "rasaxctl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
+    info ""
+    info "More information you can find under "
+    info "https://github.com/RasaHQ/rasactl/"
+    info "================================================================================="
+    exit 1
 
-    cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
-    cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
-
-    cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-    cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
-
-    warn "================================================================================="
-    warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
-    warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
-    warn "================================================================================="
-
-    wait_for_deployment
-
-    allgood "Helmchart deployed"
-    allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-    allgood "Password: ${BOLD}test${NOCOLOR}"
-
-    warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
   fi
 
 }
@@ -690,6 +727,10 @@ while [ "$#" -gt 0 ]; do
   -u | --uninstall)
     uninstall
     exit
+    ;;
+  -x | --just-install)
+    NO_RASAX_INSTALL=1
+    shift 1
     ;;
   -f=* | -y=* | --force=* | --yes=*)
     FORCE="${1#*=}"
