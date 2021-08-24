@@ -122,10 +122,36 @@ welcome() {
 
 }
 
+check_set_arch() {
+
+    arch=$(uname -m)
+
+    case $arch in
+        amd64)
+            arch=amd64
+            ;;
+        x86_64)
+            arch=amd64
+            ;;
+        arm64)
+            arch=arm64
+            ;;
+        *)
+            error "Unsupported architecture $ARCH"
+    esac
+
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+	    platform="linux"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+	    platform="darwin"
+    fi
+
+}
+
 #check what Linux distribution we are running
 check_linux_distribution() {
 
-    arch=$(uname -m)
+
     kernel=$(uname -r)
     if [ -n "$(command -v lsb_release)" ]; then
     	local distroname=$(lsb_release -s -d)
@@ -187,10 +213,6 @@ check_install_macos() {
       done
     fi
         
-    # Checking if java installed is less than version 7. If yes, installing Java 7. As logstash & Elasticsearch require Java 7 or later.
-    #elif [ "`java -version 2> /tmp/version && awk '/version/ { gsub(/"/, "", $NF); print ( $NF < 1.8 ) ? "YES" : "NO" }' /tmp/version`" == "YES" ]
-    #    then
-    #        sudo apt-get install openjdk-8-jre-headless -y
   fi
   
   # kubectl installation
@@ -263,10 +285,6 @@ check_install_ubuntu() {
     error "run the execute the install script afterwards again"
     exit 1
         
-    # Checking if java installed is less than version 7. If yes, installing Java 7. As logstash & Elasticsearch require Java 7 or later.
-    #elif [ "`java -version 2> /tmp/version && awk '/version/ { gsub(/"/, "", $NF); print ( $NF < 1.8 ) ? "YES" : "NO" }' /tmp/version`" == "YES" ]
-    #    then
-    #        sudo apt-get install openjdk-8-jre-headless -y
   fi
   
   # kubectl installation
@@ -398,6 +416,8 @@ check_install_arch() {
     allgood "installed kind"
   fi    
 
+  install_rasactl
+
   kind_finalize_rasax
 
 }
@@ -523,11 +543,28 @@ preflight_check() {
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
 }
 
+
+# TODO: when rasactl repo is public change logic with versioning and querying GITHUB api endpoint for latest release
+# also sha256 check
 install_rasactl() {
 
-RASACTL_BASEURL
-RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
+  RASACTL_BASE_URL="https://gist.github.com/RASADSA/51bd3fff20e69731abe8c693aaa87562/raw/a0da15a6cf6839b6480b133d0460d5ad073499ee/"
+  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.9_${platform}_${arch}.tar.gz"
 
+  if has rasactl; then
+    allgood "found rasactl"
+  else
+    warn "cannot find rasactl"
+    confirm "installing rasactl via binary download"
+
+    cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
+    cmd "tar xfvz /tmp/rasactl.tar.gz -C /tmp/"
+    cmd "chmod +x /tmp/rasactl_0.0.9_${platform}_${arch}/rasactl"
+    sudo_cmd "mv /tmp/rasactl_0.0.9_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
+    cmd "cd /tmp && rm -Rf rasactl_0.0.9_${platform}_${arch} && rm rasactl.tar.gz && cd -"
+
+    allgood "installed rasactl"
+  fi
 
 }
 
@@ -667,7 +704,7 @@ kind_finalize_rasactl() {
   warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
   warn "===================================================================="
 
-  sudo_cmd "rasaxctl start dsa-test-path --kubeconfig /home/dsa/.kube/config --project-path /home/dsa/test"
+  sudo_cmd "rasaxctl start rasa-demo --kubeconfig $HOME/.kube/config --project-path $PWD"
 
 }
 
@@ -746,4 +783,5 @@ while [ "$#" -gt 0 ]; do
 done
 
 welcome
+check_set_arch
 check_os_install_kind
