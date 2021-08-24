@@ -248,6 +248,8 @@ check_install_macos() {
      allgood "installed kind"
   fi      
 
+  install_rasactl
+ 
   kind_finalize_rasax
 
 }
@@ -331,6 +333,9 @@ check_install_ubuntu() {
     allgood "installed kind"
 
   fi    
+
+  install_rasactl
+
 
   kind_finalize_rasax
 
@@ -676,7 +681,7 @@ kind_finalize_rasax() {
     info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
-    info "rasaxctl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
+    info "rasactl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
     info ""
     info "More information you can find under "
     info "https://github.com/RasaHQ/rasactl/"
@@ -704,7 +709,7 @@ kind_finalize_rasactl() {
   warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
   warn "===================================================================="
 
-  sudo_cmd "rasaxctl start rasa-demo --kubeconfig $HOME/.kube/config --project-path $PWD"
+  sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config --project-path $PWD"
 
 }
 
