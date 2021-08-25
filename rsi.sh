@@ -693,7 +693,7 @@ kind_finalize_rasax() {
     info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
-    info "rasactl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
+    info "sudo rasactl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
     info ""
     info "More examples you can find by executing the 'rasactl help start' command."
     info "To learn more about rasactl visit:"
