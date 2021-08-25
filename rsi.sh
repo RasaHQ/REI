@@ -563,7 +563,7 @@ preflight_check() {
 install_rasactl() {
 
   RASACTL_BASE_URL="https://gist.github.com/RASADSA/51bd3fff20e69731abe8c693aaa87562/raw/a0da15a6cf6839b6480b133d0460d5ad073499ee/"
-  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.9_${platform}_${arch}.tar.gz"
+  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.11_${platform}_${arch}.tar.gz"
 
   if has rasactl; then
     allgood "found rasactl"
