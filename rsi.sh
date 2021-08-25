@@ -568,7 +568,7 @@ install_rasactl() {
   if has rasactl; then
     allgood "found rasactl"
   else
-    warn "cannot find rasactl"
+    warn "cannot find rasactl - installing..."
     confirm "installing rasactl via binary download"
 
     cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
