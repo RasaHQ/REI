@@ -178,7 +178,7 @@ check_install_macos() {
   if has brew; then
     allgood "found homebrew"
   else
-    error "cannot find homebrew which is required for installing RASA X"
+    error "cannot find homebrew which is required for installing RASA OSS / RASA X via REI"
     error "please follow this link for installation -> https://brew.sh/"
     exit 1
   fi
@@ -190,16 +190,16 @@ check_install_macos() {
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
 
       open /Applications/Docker.app
-      warn "Docker Desktop is not running please check for the Docker Desktop GUI window and start it"
+      error "Docker Desktop is not running please check for the Docker Desktop GUI window and start it and re-run rsi.sh"
 
     fi
 
   else
-    warn "cannot find docker"
+    warn "cannot find docker - installing..."
     confirm "installing Docker Desktop via homebrew"
 
     # Installing docker via homebrew
-    brew install --cask docker ${VERBOSE-}
+    cmd "brew install --cask docker"
 
     allgood "installed Docker Desktop and opening it"
 
@@ -219,7 +219,7 @@ check_install_macos() {
   if has kubectl; then
     allgood "found kubectl"
   else
-    warn "cannot find kubectl - installing it via homebrew"
+    warn "cannot find kubectl - installing..."
     confirm "- installing kubectl via homebrew"
     # Installing docker via homebrew
     cmd "brew install kubectl"
@@ -230,7 +230,7 @@ check_install_macos() {
   if has helm; then
     allgood "found helm"
   else
-     warn "cannot find helm - installing it via homebrew"
+     warn "cannot find helm - installing..."
      confirm "installing helm via homebrew"
      # Installing docker via homebrew
      cmd "brew install helm"
@@ -241,7 +241,7 @@ check_install_macos() {
   if has kind; then
     allgood "found kind"
   else
-     warn "cannot find kind"
+     warn "cannot find kind - installing..."
      confirm "installing kind via homebrew"
      # Installing docker via homebrew
      cmd "brew install kind"
@@ -257,6 +257,17 @@ check_install_macos() {
 check_install_ubuntu() {
   check_sudo
 
+# curl installation
+  if has curl; then
+    allgood "found curl"
+  else
+    warn "cannot find curl - installing..."
+    confirm "installing curl via apt"
+    sudo_cmd "apt-get install curl --yes"
+    allgood "installed curl"
+  fi      
+
+
 # Docker installation
   if has docker; then 
     allgood "found docker"
@@ -269,7 +280,7 @@ check_install_ubuntu() {
     fi
 
   else
-    warn "cannot find docker"
+    warn "cannot find docker - installing..."
     confirm "installing docker via apt"
     # Installing docker via apt
     sudo_cmd "apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common --yes"
@@ -283,8 +294,9 @@ check_install_ubuntu() {
     confirm "adding $USER to group docker to access docker via your user"
     sudo_cmd "gpasswd -a $USER docker"
     cmd "getent group docker"
-    error "A relogin to your Desktop session is required that the group rights are loaded. If this doesnt work please reboot"
-    error "run the execute the install script afterwards again"
+    error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
+    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "run the RSI script afterwards again to continue the installation"
     exit 1
         
   fi
@@ -293,7 +305,7 @@ check_install_ubuntu() {
   if has kubectl; then
     allgood "found kubectl"
   else
-    warn "cannot find kubectl"
+    warn "cannot find kubectl - installing..."
     confirm "installing kubebctl via apt"
 
     sudo_cmd "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
@@ -308,7 +320,7 @@ check_install_ubuntu() {
   if has helm; then
     allgood "found helm"
   else
-    warn "cannot find helm"
+    warn "cannot find helm - installing..."
     confirm "installing helm via apt"
 
     sudo_cmd "curl -s https://baltocdn.com/helm/signing.asc | apt-key add -"
@@ -323,7 +335,7 @@ check_install_ubuntu() {
   if has kind; then
     allgood "found kind"
   else
-    warn "cannot find kind"
+    warn "cannot find kind - installing..."
     confirm "installing kind via binary download"
 
     cmd "curl -Lo /tmp/kind-bin-download https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64"
@@ -335,7 +347,6 @@ check_install_ubuntu() {
   fi    
 
   install_rasactl
-
 
   kind_finalize_rasax
 
@@ -356,10 +367,10 @@ check_install_arch() {
     fi
 
   else
-    warn "cannot find docker"
+    warn "cannot find docker - installing..."
     confirm "installing docker via pacman"
 
-    sudo_cmd "sudo pacman -S docker --noconfirm"
+    sudo_cmd "pacman -S docker --noconfirm"
 
     allgood "installed docker"
 
@@ -367,23 +378,21 @@ check_install_arch() {
     confirm "adding $USER to group docker to access docker via your user"
     sudo_cmd "sudo gpasswd -a $USER docker"
     cmd "getent group docker"
-    error "A relogin to your Desktop session is required that the group rights are loaded. If this doesnt work please reboot"
-    error "run the execute the install script afterwards again"
+
+    error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
+    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "run the RSI script afterwards again to continue the installation"
     exit 1
         
-    # Checking if java installed is less than version 7. If yes, installing Java 7. As logstash & Elasticsearch require Java 7 or later.
-    #elif [ "`java -version 2> /tmp/version && awk '/version/ { gsub(/"/, "", $NF); print ( $NF < 1.8 ) ? "YES" : "NO" }' /tmp/version`" == "YES" ]
-    #    then
-    #        sudo apt-get install openjdk-8-jre-headless -y
   fi
   
   # curl installation
   if has curl; then
     allgood "found curl"
   else
-    warn "cannot find curl - installing it via apt"
-    confirm "installing curl via apt"
-    sudo_cmd "sudo pacman -S curl --noconfirm"
+    warn "cannot find curl - installing..."
+    confirm "installing curl via pacman"
+    sudo_cmd "pacman -S curl --noconfirm"
     allgood "installed curl"
   fi      
 
@@ -391,7 +400,7 @@ check_install_arch() {
   if has kubectl; then
     allgood "found kubectl"
   else
-    warn "cannot find kubectl"
+    warn "cannot find kubectl - installing..."
     confirm "installing kubebctl via pacman"
     sudo_cmd "pacman -S kubectl --noconfirm"
     allgood "installed kubectl"
@@ -401,9 +410,9 @@ check_install_arch() {
   if has helm; then
     allgood "found helm"
   else
-    warn "cannot find helm"
+    warn "cannot find helm - installing..."
     confirm "installing helm via pacman"
-    sudo_cmd "sudo pacman -S helm --noconfirm"
+    sudo_cmd "pacman -S helm --noconfirm"
     allgood "installed helm"
   fi      
 
@@ -411,7 +420,7 @@ check_install_arch() {
   if has kind; then
     allgood "found kind"
   else
-    warn "cannot find kind"
+    warn "cannot find kind - installing..."
     confirm "installing kind via binary download"
 
     cmd "curl -Lo /tmp/kind-bin-download https://github.com/kubernetes-sigs/kind/releases/download/v0.11.1/kind-linux-amd64"
@@ -564,9 +573,9 @@ install_rasactl() {
 
     cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
     cmd "tar xfvz /tmp/rasactl.tar.gz -C /tmp/"
-    cmd "chmod +x /tmp/rasactl_0.0.9_${platform}_${arch}/rasactl"
-    sudo_cmd "mv /tmp/rasactl_0.0.9_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
-    cmd "cd /tmp && rm -Rf rasactl_0.0.9_${platform}_${arch} && rm rasactl.tar.gz && cd -"
+    cmd "chmod +x /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl"
+    sudo_cmd "mv /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
+    cmd "cd /tmp && rm -Rf rasactl_0.0.11_${platform}_${arch} && rm rasactl.tar.gz && cd -"
 
     allgood "installed rasactl"
   fi
@@ -677,14 +686,19 @@ kind_finalize_rasax() {
 
     allgood "KIND RASA cluster creation finished"
 
+    cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+    cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+
     info "================================================================================="
     info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
     info "rasactl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
     info ""
-    info "More information you can find under "
-    info "https://github.com/RasaHQ/rasactl/"
+    info "More examples you can find by executing the 'rasactl help start' command."
+    info "To learn more about rasactl visit:"
+    info "- https://github.com/RasaHQ/rasactl/"
+    info "- link to the docs when it's ready"
     info "================================================================================="
     exit 1
 
