@@ -606,7 +606,33 @@ wait_for_deployment() {
     sleep 0.5
     ((i=i+1)) 
 done
-echo "\n"
+
+}
+
+wait_for_kind() {
+  # need to wait for a moment on kubernetes
+  sleep 60
+
+  i=0 
+  tput sc 
+  while [[ $(kubectl -n kube-system get pods -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') =~ "False" ]] ; do
+    case $(($i % 10)) in
+        0 ) j="▁" ;;
+			  1 ) j="▃" ;;
+			  2 ) j="▄" ;;
+        3 ) j="▅" ;;
+			  4 ) j="▆" ;;
+			  5 ) j="▇" ;;
+			  6 ) j="▆" ;;
+			  7 ) j="▅" ;;
+			  8 ) j="▄" ;;
+			  9 ) j="▃" ;;
+    esac
+    tput rc
+    echo -en " \r[$j] Waiting for KIND Cluster to be ready..." 
+    sleep 0.5
+    ((i=i+1)) 
+done
 
 }
 
@@ -618,6 +644,9 @@ kind_finalize_rasax() {
     if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
 
       info "found RASA KIND cluster"
+      info "checking if KIND cluster is ready..."
+
+      wait_for_kind
 
       warn "switching kubectl context to: kind-rasa"
       warn "========================================="
@@ -626,21 +655,8 @@ kind_finalize_rasax() {
 
       cmd "kubectl cluster-info --context kind-rasa"
 
-     # cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-     # cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
-      
-      sudo_cmd "rasactl start rasa-x"
+      sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config"
 
-     # warn "==================================================================="
-     # warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
-     # warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
-     # warn "===================================================================="
-
-     # wait_for_deployment
-
-     # allgood "Helmchart deployed"
-     # allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-     # allgood "Password: ${BOLD}test${NOCOLOR}"
 
     else
       info "Creating KIND RASA Cluster"
@@ -651,30 +667,14 @@ kind_finalize_rasax() {
       cmd "rm /tmp/kind-rasa-config.yaml"
 
       allgood "KIND RASA cluster creation finished"
+      wait_for_kind
 
       warn "switching kubectl context to: kind-rasa"
       warn "========================================="
       warn "kubectl cluster-info --context kind-rasa"
       warn "========================================="
 
-      sudo_cmd "rasactl start rasa-x"
-
-#      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
-#      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
-#
-#      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-#      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
-
-#      warn "================================================================================="
-#      warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
-#      warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
-#      warn "================================================================================="
-
-#      wait_for_deployment
-
-#      allgood "Helmchart deployed"
-#      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-#      allgood "Password: ${BOLD}test${NOCOLOR}"
+      sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config"
 
       warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
     fi
@@ -689,6 +689,8 @@ kind_finalize_rasax() {
     cmd "rm /tmp/kind-rasa-config.yaml"
 
     allgood "KIND RASA cluster creation finished"
+
+    wait_for_kind
 
     cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
     cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
