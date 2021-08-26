@@ -626,19 +626,21 @@ kind_finalize_rasax() {
 
       cmd "kubectl cluster-info --context kind-rasa"
 
-      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
+     # cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
+     # cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
+      
+      sudo_cmd "rasactl start rasa-x"
 
-      warn "==================================================================="
-      warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
-      warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
-      warn "===================================================================="
+     # warn "==================================================================="
+     # warn "${BOLD}Installing RASAX Offical Helmchart to local RASA KIND Cluster"
+     # warn "${BOLD}This will take around 6-20 minutes - time to make a coffe or tea =]"
+     # warn "===================================================================="
 
-      wait_for_deployment
+     # wait_for_deployment
 
-      allgood "Helmchart deployed"
-      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-      allgood "Password: ${BOLD}test${NOCOLOR}"
+     # allgood "Helmchart deployed"
+     # allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
+     # allgood "Password: ${BOLD}test${NOCOLOR}"
 
     else
       info "Creating KIND RASA Cluster"
@@ -655,22 +657,24 @@ kind_finalize_rasax() {
       warn "kubectl cluster-info --context kind-rasa"
       warn "========================================="
 
-      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
-      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+      sudo_cmd "rasactl start rasa-x"
 
-      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
-      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
+#      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+#      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+#
+#      cmd "helm repo add rasa-x https://rasahq.github.io/rasa-x-helm"
+#      cmd "helm -n rasa upgrade rasa-x --install --create-namespace -f https://gist.githubusercontent.com/RASADSA/32138b62bd97a348db374c87c27d8dc6/raw/90c0ba3564c33739107678163b588d7e0fde5918/values.yaml rasa-x/rasa-x"
 
-      warn "================================================================================="
-      warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
-      warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
-      warn "================================================================================="
+#      warn "================================================================================="
+#      warn "${BOLD}Installing / Upgrading RASAX Offical Helmchart to local RASA KIND Cluster"
+#      warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
+#      warn "================================================================================="
 
-      wait_for_deployment
+#      wait_for_deployment
 
-      allgood "Helmchart deployed"
-      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
-      allgood "Password: ${BOLD}test${NOCOLOR}"
+#      allgood "Helmchart deployed"
+#      allgood "to start using RASAX please visit ${BOLD}http://localhost/${NOCOLOR} or ${BOLD}https://localhost/${NOCOLOR}"
+#      allgood "Password: ${BOLD}test${NOCOLOR}"
 
       warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
     fi
@@ -723,7 +727,7 @@ kind_finalize_rasactl() {
   warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
   warn "===================================================================="
 
-  sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config --project-path $PWD"
+  sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config "
 
 }
 
