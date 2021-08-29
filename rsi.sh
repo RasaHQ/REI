@@ -191,7 +191,7 @@ check_install_macos() {
 
       open /Applications/Docker.app
       error "Docker Desktop is not running please check for the Docker Desktop GUI window and start it and re-run rsi.sh"
-
+      exit 1
     fi
 
   else
@@ -648,6 +648,9 @@ kind_finalize_rasax() {
 
       wait_for_kind
 
+      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+
       warn "switching kubectl context to: kind-rasa"
       warn "========================================="
       warn "kubectl cluster-info --context kind-rasa"
@@ -655,7 +658,7 @@ kind_finalize_rasax() {
 
       cmd "kubectl cluster-info --context kind-rasa"
 
-      sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config"
+      sudo rasactl start rasa-x --kubeconfig $HOME/.kube/config
 
 
     else
@@ -669,12 +672,15 @@ kind_finalize_rasax() {
       allgood "KIND RASA cluster creation finished"
       wait_for_kind
 
+      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+      cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+
       warn "switching kubectl context to: kind-rasa"
       warn "========================================="
       warn "kubectl cluster-info --context kind-rasa"
       warn "========================================="
 
-      sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config"
+      sudo rasactl start rasa-x --kubeconfig $HOME/.kube/config
 
       warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
     fi
