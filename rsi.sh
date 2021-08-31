@@ -605,7 +605,7 @@ wait_for_deployment() {
     echo -en " \r[$j] Waiting for other Helm deployment to finish..." 
     sleep 0.5
     ((i=i+1)) 
-done
+  done
 
 }
 
@@ -632,16 +632,45 @@ wait_for_kind() {
     echo -en " \r[$j] Waiting for KIND Cluster to be ready..." 
     sleep 0.5
     ((i=i+1)) 
-done
+  done
 
 }
 
 # finalize with helm at end
 kind_finalize_rasax() {
 
-  if [ -z ${NO_RASAX_INSTALL+x} ]; then
+  if [ -z ${RASAX_INSTALL+x} ]; then
 
-    if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
+    info "Creating KIND RASA Cluster"
+    info "This will take some minutes..."
+
+    cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
+    cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
+    cmd "rm /tmp/kind-rasa-config.yaml"
+
+    allgood "KIND RASA cluster creation finished"
+
+    wait_for_kind
+
+    cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+    cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
+
+    info "================================================================================="
+    info "Since you choose the --just-install flag "
+    info "you can now your rasactl to kickstart a local rasax installation run"
+    info "kubectl cluster-info --context kind-rasa"
+    info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
+    info ""
+    info "More examples you can find by executing the 'rasactl help start' command."
+    info "To learn more about rasactl visit:"
+    info "- https://github.com/RasaHQ/rasactl/"
+    info "- link to the docs when it's ready"
+    info "================================================================================="
+    exit 1
+
+  else
+
+      if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
 
       info "found RASA KIND cluster"
       info "checking if KIND cluster is ready..."
@@ -684,35 +713,6 @@ kind_finalize_rasax() {
 
       warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
     fi
-
-  else
-    
-    info "Creating KIND RASA Cluster"
-    info "This will take some minutes..."
-
-    cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
-    cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
-    cmd "rm /tmp/kind-rasa-config.yaml"
-
-    allgood "KIND RASA cluster creation finished"
-
-    wait_for_kind
-
-    cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
-    cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
-
-    info "================================================================================="
-    info "Since you choose the --just-install flag "
-    info "you can now your rasactl to kickstart a local rasax installation run"
-    info "kubectl cluster-info --context kind-rasa"
-    info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
-    info ""
-    info "More examples you can find by executing the 'rasactl help start' command."
-    info "To learn more about rasactl visit:"
-    info "- https://github.com/RasaHQ/rasactl/"
-    info "- link to the docs when it's ready"
-    info "================================================================================="
-    exit 1
 
   fi
 
@@ -770,8 +770,9 @@ Options
   -u, --uninstall
     uninstall RASA X / RASA OSS installation
 
-  -x, --just-install
-    Install rasactl binary and all depencies for KIND but dont create a KIND Cluster and install the chart
+  -x, --invoke-rasactl
+    After installation of all binaries runs:
+    sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config
 
 EOT
 }
@@ -796,8 +797,8 @@ while [ "$#" -gt 0 ]; do
     uninstall
     exit
     ;;
-  -x | --just-install)
-    NO_RASAX_INSTALL=1
+  -x | --invoke-rasactl)
+    RASAX_INSTALL=1
     shift 1
     ;;
   -f=* | -y=* | --force=* | --yes=*)
