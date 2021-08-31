@@ -534,7 +534,7 @@ preflight_check() {
 
     if [[ $freedisk -lt 8 ]]; then              
        error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS" 
-       error "Please free at least 30 GB of local disk and run the script again"
+       error "Please free at least 8 GB of local disk and run the script again"
        exit 1
     fi;
 
@@ -648,7 +648,7 @@ kind_finalize_rasax() {
 
       wait_for_kind
 
-      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/f3c50698d98299b1a61f83cb6c4bb7de0b71fb4b/deploy/static/provider/kind/deploy.yaml"
       cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
 
       warn "switching kubectl context to: kind-rasa"
@@ -658,7 +658,7 @@ kind_finalize_rasax() {
 
       cmd "kubectl cluster-info --context kind-rasa"
 
-      sudo rasactl start rasa-x --kubeconfig $HOME/.kube/config
+      sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config
 
 
     else
@@ -672,7 +672,7 @@ kind_finalize_rasax() {
       allgood "KIND RASA cluster creation finished"
       wait_for_kind
 
-      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
+      cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/f3c50698d98299b1a61f83cb6c4bb7de0b71fb4b/deploy/static/provider/kind/deploy.yaml"
       cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
 
       warn "switching kubectl context to: kind-rasa"
@@ -680,7 +680,7 @@ kind_finalize_rasax() {
       warn "kubectl cluster-info --context kind-rasa"
       warn "========================================="
 
-      sudo rasactl start rasa-x --kubeconfig $HOME/.kube/config
+      sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config
 
       warn "Bugs / Improvements / Features : https://github.com/RasaHQ/RSI/issues/new?labels=bug&assignees=RASADSA"
     fi
@@ -705,7 +705,7 @@ kind_finalize_rasax() {
     info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
-    info "sudo rasactl start rasa-x --kubeconfig /home/<user>/.kube/config --project-path /home/<user>/<rasaworkdir>"
+    info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
     info ""
     info "More examples you can find by executing the 'rasactl help start' command."
     info "To learn more about rasactl visit:"
@@ -735,7 +735,7 @@ kind_finalize_rasactl() {
   warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
   warn "===================================================================="
 
-  sudo_cmd "rasactl start rasa-x --kubeconfig $HOME/.kube/config "
+  sudo rasactl start rasa-x 
 
 }
 
