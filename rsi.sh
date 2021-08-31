@@ -353,7 +353,7 @@ check_install_ubuntu() {
 }
 
 check_install_arch() {
-  check_sudo
+  # check_sudo
 
 # Docker installation
   if has docker; then 
@@ -532,7 +532,7 @@ preflight_check() {
       openports=`lsof -nP -iTCP -sTCP:LISTEN`
     fi
 
-    if [[ $freedisk -lt 8 ]]; then              
+    if [[ $freedisk -lt 20 ]]; then              
        error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS" 
        error "Please free at least 8 GB of local disk and run the script again"
        exit 1
