@@ -380,7 +380,7 @@ check_install_arch() {
     cmd "getent group docker"
 
     error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
-    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "Since this is the first installation of docker the rights for docker and your user need to be updated"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
         
