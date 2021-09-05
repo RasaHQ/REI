@@ -680,7 +680,6 @@ kind_finalize_rasax() {
     cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
 
     info "================================================================================="
-    info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
     info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
