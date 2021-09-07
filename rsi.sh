@@ -585,8 +585,8 @@ preflight_check() {
 # also sha256 check
 install_rasactl() {
 
-  RASACTL_BASE_URL="https://gist.github.com/RASADSA/51bd3fff20e69731abe8c693aaa87562/raw/8931a4e8209d043da3e076343319cd175838690e/"
-  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.11_${platform}_${arch}.tar.gz"
+  RASACTL_BASE_URL="https://gist.github.com/RASADSA/69cf54f595d5cc79dfd163e6deb9f3f5/raw/72e8dfe731ce77b2b5445f7d709086a0869b5b05/"
+  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.17_${platform}_${arch}.tar.gz"
 
   if has rasactl; then
     allgood "found rasactl"
@@ -596,9 +596,9 @@ install_rasactl() {
 
     cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
     cmd "tar xfvz /tmp/rasactl.tar.gz -C /tmp/"
-    cmd "chmod +x /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl"
-    sudo_cmd "mv /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
-    cmd "cd /tmp && rm -Rf rasactl_0.0.11_${platform}_${arch} && rm rasactl.tar.gz && cd -"
+    cmd "chmod +x /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl"
+    sudo_cmd "mv /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
+    cmd "cd /tmp && rm -Rf rasactl_0.0.17_${platform}_${arch} && rm rasactl.tar.gz && cd -"
 
     allgood "installed rasactl"
   fi
