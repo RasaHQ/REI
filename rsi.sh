@@ -5,6 +5,10 @@
 RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases"
 RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
 
+check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 ) 
+check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 ) 
+
+
 # colors
 
 BOLD="$(tput bold 2>/dev/null || printf '')"
@@ -544,14 +548,33 @@ preflight_check() {
        exit 1
     fi;
 
+    info "checking KIND ports to avoid collisons on binding to interface..."
+    while [[ -z "${HTTPPORT}" ]] ; do
+      for chttp in "${check_http_ports[@]}"
+      do
+        if [[ $openports =~ ":${chttp} (LISTEN)" ]]; then
+          warn "port ${chttp} is used - checking other ports..."
+        else
+          HTTPPORT=${chttp}
+          info "port ${HTTPPORT} is free - using it" 
+          break
+        fi 
+      done
+    done
 
-    if [[ $openports =~ "*:80 (LISTEN)" ]]; then              
-       error "We detected that port 80 is already occupied - please close the application and run the script again"
-       exit 1
-    elif [[ $openports =~ "*:443 (LISTEN)" ]]; then
-       error "We detected that port 443 is already occupied - please close the application and run the script again"
-       exit 1
-    fi
+    while [[ -n "${HTTPPORT}"&& -z "${HTTPSPORT}" ]] ; do
+
+      for chttps in "${check_https_ports[@]}"
+      do
+        if [[ $openports =~ ":${chttps} (LISTEN)" ]]; then
+          warn "port ${chttps} is used - checking other ports..."
+        else
+          HTTPSPORT=${chttps}
+          info "port ${HTTPSPORT} is free - using it" 
+          break
+        fi 
+      done
+    done
 
   allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}" 
   allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
@@ -562,8 +585,8 @@ preflight_check() {
 # also sha256 check
 install_rasactl() {
 
-  RASACTL_BASE_URL="https://gist.github.com/RASADSA/51bd3fff20e69731abe8c693aaa87562/raw/8931a4e8209d043da3e076343319cd175838690e/"
-  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.11_${platform}_${arch}.tar.gz"
+  RASACTL_BASE_URL="https://gist.github.com/RASADSA/69cf54f595d5cc79dfd163e6deb9f3f5/raw/72e8dfe731ce77b2b5445f7d709086a0869b5b05/"
+  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.17_${platform}_${arch}.tar.gz"
 
   if has rasactl; then
     allgood "found rasactl"
@@ -573,9 +596,9 @@ install_rasactl() {
 
     cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
     cmd "tar xfvz /tmp/rasactl.tar.gz -C /tmp/"
-    cmd "chmod +x /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl"
-    sudo_cmd "mv /tmp/rasactl_0.0.11_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
-    cmd "cd /tmp && rm -Rf rasactl_0.0.11_${platform}_${arch} && rm rasactl.tar.gz && cd -"
+    cmd "chmod +x /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl"
+    sudo_cmd "mv /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
+    cmd "cd /tmp && rm -Rf rasactl_0.0.17_${platform}_${arch} && rm rasactl.tar.gz && cd -"
 
     allgood "installed rasactl"
   fi
@@ -644,7 +667,8 @@ kind_finalize_rasax() {
     info "Creating KIND RASA Cluster"
     info "This will take some minutes..."
 
-    cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
+    render_kind_config
+
     cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
     cmd "rm /tmp/kind-rasa-config.yaml"
 
@@ -656,7 +680,6 @@ kind_finalize_rasax() {
     cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
 
     info "================================================================================="
-    info "Since you choose the --just-install flag "
     info "you can now your rasactl to kickstart a local rasax installation run"
     info "kubectl cluster-info --context kind-rasa"
     info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
@@ -694,7 +717,8 @@ kind_finalize_rasax() {
       info "Creating KIND RASA Cluster"
       info "This will take some minutes..."
 
-      cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RasaHQ/RSI/main/kind/kind-rasa-config.yaml"
+      render_kind_config
+
       cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
       cmd "rm /tmp/kind-rasa-config.yaml"
 
@@ -723,7 +747,9 @@ kind_finalize_rasax() {
 kind_finalize_rasactl() {
 
   info "Creating KIND RASA Cluster"
-  cmd "curl -Lo /tmp/kind-rasa-config.yaml https://raw.githubusercontent.com/RASADSA/DSI/main/kind/kind-rasa-config.yaml"
+
+  render_kind_config
+
   cmd "kind create cluster --name rasa --config /tmp/kind-rasa-config.yaml"
   cmd "rm /tmp/kind-rasa-config.yaml"
   allgood "KIND RASA cluster creation finished"
@@ -748,6 +774,41 @@ uninstall() {
 
 }
 
+# render KIND yaml cluster config ports found by preflight
+render_kind_config() {
+
+cat > /tmp/kind-rasa-config.yaml<< EOF
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        service-node-port-range: "30000-30100"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: $HTTPPORT
+    protocol: TCP
+  - containerPort: 443
+    hostPort: $HTTPSPORT
+    protocol: TCP
+EOF
+for x in {30000..30100}; do
+echo "  - containerPort: $x
+    hostPort: $x
+    protocol: TCP" >> /tmp/kind-rasa-config.yaml
+done
+  
+}
+
 
 # cli help page
 usage() {
@@ -761,7 +822,7 @@ Options
   -f, -y, --force, --yes
     Skip the confirmation prompt during installation
 
-  -V, --verbose
+  -v, --verbose
     Enable verbose output of all running commands
 
   -h, --help
