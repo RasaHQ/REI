@@ -1,18 +1,18 @@
-# RASA X Simple Installer (RSI) 
+# RASA Ephermal Installer (REI) 
 
-RSI will help you to get an easy way to run and test RASA X / RASA OSS on your local workstation with a breeze.
+REI will help you to get an easy way to run and test RASA X / RASA OSS on your local workstation with a breeze.
 
-## How does RSI manage the installation
+## How does REI manage the installation
 
-RSI installs KIND as Platform to run RASA X / OSS Helmchart on top.
+REI installs KIND as Kubernetes (k8s) Platform and install RASA rasactl to deploy managed RASA X / OSS on top.
 
-RSI will check Requirments and install for the supported OS:
+REI will check Requirments and install for the supported OS:
 
 - Docker
 - kubectl
 - helm
 - kind
-- RASA X official Helmchart
+- rasactl
 
 ### Requirements
 
@@ -22,7 +22,7 @@ Supported OS:
 - Ubuntu / Debian
 - ArchLinux / Manjaro
 
-to work with RSI in an optimal enviroment please use a  System with the following resources at hand
+to work with REI in an optimal enviroment please use a  System with the following resources at hand
 
 Minimum / (Recommended)
 
@@ -34,29 +34,25 @@ Minimum / (Recommended)
 TL:DR;
 
 ```bash
-curl -O https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh && bash rsi.sh --yes
+curl -O https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh && bash rei.sh -y -x
 ```
 
 or
 
 ```bash
-wget https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh && bash rsi.sh --yes
+wget https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh && bash rei.sh -y -x
 ```
-
-after installation you can access RASA X via -> http://localhost/ 
-password: test
-
 
 ## Installation
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh)"
 ```
 
 Note - The defaults of the install script can be overridden see the built-in help.
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/RSI/main/rsi.sh)" -- --help
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh)" -- --help
 ```
 
 ## FAQ
@@ -69,12 +65,12 @@ to get all logfiles from the RASA X / OSS Deployment just run in your terminal
 kubectl -n rasa logs -l app.kubernetes.io/name=rasa-x
 ```
 
-### how do i remove the RSI Cluster locally ?
+### how do i remove the KIND Rasa Cluster locally ?
 
 excute the rsi.sh script with the -u flag
 
 ```bash
-bash rsi.sh -u
+bash rei.sh -u
 ```
 
 ### how do i see all running RASA containers ?
