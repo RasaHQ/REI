@@ -257,7 +257,7 @@ check_install_macos() {
 
 }
 
-check_install_centos() {
+check_install_fedora() {
   check_sudo
 
 # curl installation
@@ -541,7 +541,7 @@ check_os_install_kind()
            info "Detecting OS..."
            allgood "found ${distribution}"
            check_install_arch
-        elif [[ "${distribution}" =~ "CentOS" ]]; then
+        elif [[ "${distribution}" =~ "Fedora" ]]; then
            preflight_check
            info "Detecting OS..."
            allgood "found ${distribution}"
