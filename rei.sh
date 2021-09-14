@@ -121,7 +121,7 @@ welcome() {
   greet "                                                                                                                  ▀██"
   greet "                                                                                                                   ▀▀"
   printf '\n'
-  info "Welcome to RASA Simple Installer [RSI]"
+  info "Welcome to RASA Ephemeral Installer [REI]"
   printf '\n'
 
 }
@@ -154,7 +154,6 @@ check_set_arch() {
 
 #check what Linux distribution we are running
 check_linux_distribution() {
-
 
     kernel=$(uname -r)
     if [ -n "$(command -v lsb_release)" ]; then
@@ -254,6 +253,95 @@ check_install_macos() {
 
   install_rasactl
  
+  kind_finalize_rasax
+
+}
+
+check_install_fedora() {
+  check_sudo
+
+# curl installation
+  if has curl; then
+    allgood "found curl"
+  else
+    warn "cannot find curl - installing..."
+    confirm "installing curl via yum"
+    sudo_cmd "yum install curl -y"
+    allgood "installed curl"
+  fi      
+
+
+# Docker installation
+  if has docker; then 
+    allgood "found docker"
+
+    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+      warn "docker daemmon isnt running"
+      confirm "starting docker daemon via systemctl"
+      sudo_cmd "systemctl start docker.service"
+      sudo_cmd "systemctl start docker.socket"
+    fi
+
+  else
+    warn "cannot find docker - installing..."
+    confirm "installing docker via yum"
+    # Installing docker via apt
+    sudo_cmd "yum install docker -y"
+    allgood "installed docker"
+
+    # yeah chicken and egg - if docker is fresh installed we need to completly reload the users session. Logout / Login or reboot
+    confirm "adding $USER to group docker to access docker via your user"
+    sudo_cmd "gpasswd -a $USER docker"
+    cmd "getent group docker"
+    error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
+    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "run the RSI script afterwards again to continue the installation"
+    exit 1
+        
+  fi
+  
+  # kubectl installation
+  if has kubectl; then
+    allgood "found kubectl"
+  else
+    warn "cannot find kubectl - installing..."
+    confirm "installing kubebctl via yum"
+
+    sudo_cmd "yum install kubernetes-client -y"
+
+    allgood "installed kubectl"
+  fi
+
+  # helm installation
+  if has helm; then
+    allgood "found helm"
+  else
+    warn "cannot find helm - installing..."
+    confirm "installing helm via offical helm installer"
+
+    cmd "curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+    cmd "bash /tmp/get_helm.sh"
+
+    allgood "installed helm"
+  fi      
+
+  # kind installation
+  if has kind; then
+    allgood "found kind"
+  else
+    warn "cannot find kind - installing..."
+    confirm "installing kind via binary download"
+
+    cmd "curl -Lo /tmp/kind-bin-download https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64"
+    cmd "chmod +x /tmp/kind-bin-download"
+    sudo_cmd "mv /tmp/kind-bin-download /usr/local/bin/kind"
+
+    allgood "installed kind"
+
+  fi    
+
+  install_rasactl
+
   kind_finalize_rasax
 
 }
@@ -453,11 +541,11 @@ check_os_install_kind()
            info "Detecting OS..."
            allgood "found ${distribution}"
            check_install_arch
-        elif [[ "${distribution}" =~ "CentOS" ]]; then
+        elif [[ "${distribution}" =~ "Fedora" ]]; then
            preflight_check
            info "Detecting OS..."
            allgood "found ${distribution}"
-           warn "not implemented... yet "
+           check_install_centos
         elif [[ "${distribution}" =~ "Ubuntu" ]]; then
            preflight_check
            info "Detecting OS..."
