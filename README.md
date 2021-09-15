@@ -34,25 +34,25 @@ Minimum / (Recommended)
 TL:DR;
 
 ```bash
-curl -O https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh && bash rei.sh -y -x
+curl -O https://rei.rasa.com/rei.sh && bash rei.sh -y -x
 ```
 
 or
 
 ```bash
-wget https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh && bash rei.sh -y -x
+wget https://rei.rasa.com/rei.sh && bash rei.sh -y -x
 ```
 
 ## Installation
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh)"
+bash -c "$(curl -fsSL https://rei.rasa.com/rei.sh)"
 ```
 
 Note - The defaults of the install script can be overridden see the built-in help.
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/RasaHQ/REI/main/rei.sh)" -- --help
+bash -c "$(curl -fsSL https://rei.rasa.com/rei.sh)" -- --help
 ```
 
 ## FAQ
