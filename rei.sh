@@ -673,8 +673,8 @@ preflight_check() {
 # also sha256 check
 install_rasactl() {
 
-  RASACTL_BASE_URL="https://gist.github.com/RASADSA/69cf54f595d5cc79dfd163e6deb9f3f5/raw/72e8dfe731ce77b2b5445f7d709086a0869b5b05/"
-  RASACTL_URL="${RASACTL_BASE_URL}rasactl_0.0.17_${platform}_${arch}.tar.gz"
+  RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases/download/${latest_tag}/"
+  RASACTL_URL="${RASACTL_BASE_URL}rasactl_${latest_tag}_${platform}_${arch}.tar.gz"
 
   if has rasactl; then
     allgood "found rasactl"
@@ -684,9 +684,9 @@ install_rasactl() {
 
     cmd "curl -o /tmp/rasactl.tar.gz -sfL ${RASACTL_URL}"
     cmd "tar xfvz /tmp/rasactl.tar.gz -C /tmp/"
-    cmd "chmod +x /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl"
-    sudo_cmd "mv /tmp/rasactl_0.0.17_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
-    cmd "cd /tmp && rm -Rf rasactl_0.0.17_${platform}_${arch} && rm rasactl.tar.gz && cd -"
+    cmd "chmod +x /tmp/rasactl_${latest_tag}_${platform}_${arch}/rasactl"
+    sudo_cmd "mv /tmp/rasactl_${latest_tag}_${platform}_${arch}/rasactl /usr/local/bin/rasactl"
+    cmd "cd /tmp && rm -Rf rasactl_${latest_tag}_${platform}_${arch} && rm rasactl.tar.gz && cd -"
 
     allgood "installed rasactl"
   fi
@@ -745,6 +745,13 @@ wait_for_kind() {
     ((i=i+1)) 
   done
 
+}
+
+# check fot the latest rasactl version and put it into LATESTTAG variable
+check_rasactl_latest() {
+    # Get tag from release URL
+    local latest_release_url="https://github.com/RasaHQ/rasactl/releases"
+    latest_tag=$(curl -Ls https://github.com/RasaHQ/rasactl/releases | grep 'href="/RasaHQ/rasactl/releases/tag/[0-9]*.[0-9]*.[0-9]*\"' | grep -v no-underline | cut -d '"' -f 2 | awk '{n=split($NF,a,"/");print a[n]}' | head -n 1)
 }
 
 # finalize with helm at end
@@ -964,5 +971,6 @@ while [ "$#" -gt 0 ]; do
 done
 
 welcome
+check_rasactl_latest
 check_set_arch
 check_os_install_kind
