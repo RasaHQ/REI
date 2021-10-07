@@ -596,6 +596,10 @@ set_dns_rasactl_localhost_macos() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ ! -e "/etc/resolver/rasactl.localhost" ]]; then
       warn "Missing DNS configuration for rasactl.localhost domain - configuring..."
+      if [[ ! -d "/etc/resolver" ]]; then
+        sudo_cmd "mkdir /etc/resolver"
+      fi
+
       sudo_cmd "cat > /etc/resolver/rasactl.localhost<< EOF
 search rasactl.localhost
 nameserver 127.0.0.1
