@@ -278,7 +278,7 @@ check_install_fedora() {
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isn't running"
+      warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
       sudo_cmd "systemctl start docker.socket"
@@ -369,7 +369,7 @@ check_install_ubuntu() {
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isn't running"
+      warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
       sudo_cmd "systemctl start docker.socket"
@@ -458,7 +458,7 @@ check_install_arch() {
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isn't running"
+      warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "sudo systemctl start docker.service"
       sudo_cmd "sudo systemctl start docker.socket"
