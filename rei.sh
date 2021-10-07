@@ -5,8 +5,8 @@
 RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases"
 RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
 
-check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 ) 
-check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 ) 
+check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 )
+check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 )
 
 
 # colors
@@ -208,16 +208,16 @@ check_install_macos() {
 
     # check if docker is running otherwise start it and wait till its running
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "Docker Desktop isnt running - i have opened it for your please start it via GUI"
+      warn "Docker Desktop isn't running - i have opened it for your please start it via GUI"
       open /Applications/Docker.app
       while [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; do
         warn "Waiting for Docker to launch..."
         sleep 1
       done
     fi
-        
+
   fi
-  
+
   # kubectl installation
   if has kubectl; then
     allgood "found kubectl"
@@ -238,7 +238,7 @@ check_install_macos() {
      # Installing docker via homebrew
      cmd "brew install helm"
      allgood "installed helm"
-  fi      
+  fi
 
   # kubectl installation
   if has kind; then
@@ -249,10 +249,12 @@ check_install_macos() {
      # Installing docker via homebrew
      cmd "brew install kind"
      allgood "installed kind"
-  fi      
+  fi
 
   install_rasactl
- 
+
+  set_dns_rasactl_localhost_macos
+
   kind_finalize_rasax
 
 }
@@ -268,15 +270,15 @@ check_install_fedora() {
     confirm "installing curl via yum"
     sudo_cmd "yum install curl -y"
     allgood "installed curl"
-  fi      
+  fi
 
 
 # Docker installation
-  if has docker; then 
+  if has docker; then
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isnt running"
+      warn "docker daemmon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
       sudo_cmd "systemctl start docker.socket"
@@ -297,9 +299,9 @@ check_install_fedora() {
     error "Since this is the first installation of docker the rights for docker and your userboot"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
-        
+
   fi
-  
+
   # kubectl installation
   if has kubectl; then
     allgood "found kubectl"
@@ -323,7 +325,7 @@ check_install_fedora() {
     cmd "bash /tmp/get_helm.sh"
 
     allgood "installed helm"
-  fi      
+  fi
 
   # kind installation
   if has kind; then
@@ -338,7 +340,7 @@ check_install_fedora() {
 
     allgood "installed kind"
 
-  fi    
+  fi
 
   install_rasactl
 
@@ -357,15 +359,15 @@ check_install_ubuntu() {
     confirm "installing curl via apt"
     sudo_cmd "apt-get install curl --yes"
     allgood "installed curl"
-  fi      
+  fi
 
 
 # Docker installation
-  if has docker; then 
+  if has docker; then
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isnt running"
+      warn "docker daemmon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
       sudo_cmd "systemctl start docker.socket"
@@ -390,9 +392,9 @@ check_install_ubuntu() {
     error "Since this is the first installation of docker the rights for docker and your userboot"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
-        
+
   fi
-  
+
   # kubectl installation
   if has kubectl; then
     allgood "found kubectl"
@@ -421,7 +423,7 @@ check_install_ubuntu() {
     sudo_cmd "apt-get update"
     sudo_cmd "apt-get install helm --yes"
     allgood "installed helm"
-  fi      
+  fi
 
   # kind installation
   if has kind; then
@@ -436,7 +438,7 @@ check_install_ubuntu() {
 
     allgood "installed kind"
 
-  fi    
+  fi
 
   install_rasactl
 
@@ -448,11 +450,11 @@ check_install_arch() {
   # check_sudo
 
 # Docker installation
-  if has docker; then 
+  if has docker; then
     allgood "found docker"
 
     if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
-      warn "docker daemmon isnt running"
+      warn "docker daemmon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "sudo systemctl start docker.service"
       sudo_cmd "sudo systemctl start docker.socket"
@@ -475,9 +477,9 @@ check_install_arch() {
     error "Since this is the first installation of docker the rights for docker and your user need to be updated"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
-        
+
   fi
-  
+
   # curl installation
   if has curl; then
     allgood "found curl"
@@ -486,7 +488,7 @@ check_install_arch() {
     confirm "installing curl via pacman"
     sudo_cmd "pacman -S curl --noconfirm"
     allgood "installed curl"
-  fi      
+  fi
 
   # kubectl installation
   if has kubectl; then
@@ -506,7 +508,7 @@ check_install_arch() {
     confirm "installing helm via pacman"
     sudo_cmd "pacman -S helm --noconfirm"
     allgood "installed helm"
-  fi      
+  fi
 
   # kind installation
   if has kind; then
@@ -520,7 +522,7 @@ check_install_arch() {
     cmd "sudo mv /tmp/kind-bin-download /usr/local/bin/kind"
 
     allgood "installed kind"
-  fi    
+  fi
 
   install_rasactl
 
@@ -551,13 +553,13 @@ check_os_install_kind()
            info "Detecting OS..."
            allgood "found ${distribution}"
            check_install_ubuntu
-        else 
+        else
            info "Detecting OS..."
            info "${distribution}"
            error "unknown distribution"
            exit 1
         fi
-     
+
     # Detecting OS
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
@@ -565,7 +567,7 @@ check_os_install_kind()
         info "Detecting OS..."
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
-	      
+
         check_install_macos
     elif [[ "$OSTYPE" == "cygwin" ]]; then
         # POSIX compatibility layer and Linux environment emulation for Windows
@@ -577,13 +579,38 @@ check_os_install_kind()
         error "not implemented... yet "
     elif [[ "$OSTYPE" == "win32" ]]; then
         # I'm not sure this can happen.
-        allgood "Windows" 
+        allgood "Windows"
         error "not implemented... yet "
     else
         # Unknown.
-        error "Unknown Platform :[" 
+        error "Unknown Platform :["
 	      exit 1
     fi
+}
+
+set_dns_rasactl_localhost_macos() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [[ ! -e "/etc/resolver/rasactl.localhost" ]]; then
+      warn "Missing DNS configuration for rasactl.localhost domain - configuring..."
+      sudo_cmd "cat > /etc/resolver/rasactl.localhost<< EOF
+search rasactl.localhost
+nameserver 127.0.0.1
+options ndots:1
+EOF
+"
+    fi
+
+    IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns)
+    if [[ "${IS_CORE_DNS_EXIST}" == "0" ]]; then
+      sudo docker run --name rasactl_coredns -d  -p "127.0.0.1:53:53/udp" tczekajlo/rasactl:coredns-1.8.5 > /dev/null
+    fi
+
+    IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up)
+    if [[ "${IS_CORE_DNS_UP}" == "0" ]]; then
+        sudo docker start rasactl_coredns > /dev/null
+    fi
+    allgood "DNS configuration is ready"
+  fi
 }
 
 # Check for sudo rights - required
@@ -611,7 +638,7 @@ preflight_check() {
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
       freemem=`free -g | awk '/^Mem:/{print $2}'`
-      freedisk=`df --block-size=1G --output=avail "$PWD" | tail -n1` 
+      freedisk=`df --block-size=1G --output=avail "$PWD" | tail -n1`
       openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
     elif [[ "$OSTYPE" == "darwin"* ]]; then
       fmem=$(vm_stat | grep free | awk '{ print $3 }' | sed 's/\.//')
@@ -624,14 +651,14 @@ preflight_check() {
       openports=`lsof -nP -iTCP -sTCP:LISTEN`
     fi
 
-    if [[ $freedisk -lt 20 ]]; then              
-       error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS" 
+    if [[ $freedisk -lt 20 ]]; then
+       error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS"
        error "Please free at least 8 GB of local disk and run the script again"
        exit 1
     fi;
 
-    if [[ $freemem -lt 6 ]]; then              
-       error "We have only ${freemem} GB of Free Memory which is not enough to Run RASA X / RASA OSS" 
+    if [[ $freemem -lt 6 ]]; then
+       error "We have only ${freemem} GB of Free Memory which is not enough to Run RASA X / RASA OSS"
        error "Please free at least 8 GB of local memory and run the script again"
        exit 1
     fi;
@@ -644,9 +671,9 @@ preflight_check() {
           warn "port ${chttp} is used - checking other ports..."
         else
           HTTPPORT=${chttp}
-          info "port ${HTTPPORT} is free - using it" 
+          info "port ${HTTPPORT} is free - using it"
           break
-        fi 
+        fi
       done
     done
 
@@ -658,14 +685,14 @@ preflight_check() {
           warn "port ${chttps} is used - checking other ports..."
         else
           HTTPSPORT=${chttps}
-          info "port ${HTTPSPORT} is free - using it" 
+          info "port ${HTTPSPORT} is free - using it"
           break
-        fi 
+        fi
       done
     done
 
-  allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}" 
-  allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}" 
+  allgood "Free Memory: ${GREEN}${freemem} GB ${NO_COLOR}"
+  allgood "Free Diskspace: ${GREEN}${freedisk} GB ${NO_COLOR}"
 }
 
 
@@ -697,8 +724,8 @@ wait_for_deployment() {
   # need to wait for a moment on kubernetes
   sleep 60
 
-  i=0 
-  tput sc 
+  i=0
+  tput sc
   while [[ $(kubectl -n rasa get pods -l app.kubernetes.io/name=rasa-x -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') =~ "False" ]] ; do
     case $(($i % 10)) in
         0 ) j="▁" ;;
@@ -713,9 +740,9 @@ wait_for_deployment() {
 			  9 ) j="▃" ;;
     esac
     tput rc
-    echo -en " \r[$j] Waiting for other Helm deployment to finish..." 
+    echo -en " \r[$j] Waiting for other Helm deployment to finish..."
     sleep 0.5
-    ((i=i+1)) 
+    ((i=i+1))
   done
 
 }
@@ -724,8 +751,8 @@ wait_for_kind() {
   # need to wait for a moment on kubernetes
   sleep 60
 
-  i=0 
-  tput sc 
+  i=0
+  tput sc
   while [[ $(kubectl -n kube-system get pods -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') =~ "False" ]] ; do
     case $(($i % 10)) in
         0 ) j="▁" ;;
@@ -740,9 +767,9 @@ wait_for_kind() {
 			  9 ) j="▃" ;;
     esac
     tput rc
-    echo -en " \r[$j] Waiting for KIND Cluster to be ready..." 
+    echo -en " \r[$j] Waiting for KIND Cluster to be ready..."
     sleep 0.5
-    ((i=i+1)) 
+    ((i=i+1))
   done
 
 }
@@ -751,7 +778,8 @@ wait_for_kind() {
 check_rasactl_latest() {
     # Get tag from release URL
     local latest_release_url="https://github.com/RasaHQ/rasactl/releases"
-    latest_tag=$(curl -Ls https://github.com/RasaHQ/rasactl/releases | grep 'href="/RasaHQ/rasactl/releases/tag/[0-9]*.[0-9]*.[0-9]*\"' | grep -v no-underline | cut -d '"' -f 2 | awk '{n=split($NF,a,"/");print a[n]}' | head -n 1)
+    #latest_tag=$(curl -Ls https://github.com/RasaHQ/rasactl/releases | grep 'href="/RasaHQ/rasactl/releases/tag/[0-9]*.[0-9]*.[0-9]*\"' | grep -v no-underline | cut -d '"' -f 2 | awk '{n=split($NF,a,"/");print a[n]}' | head -n 1)
+    latest_tag="0.2.0-rc.1"
 }
 
 # finalize with helm at end
@@ -856,7 +884,7 @@ kind_finalize_rasactl() {
   warn "${BOLD}This will take around 8-10 minutes - time to make a coffe or tea =]"
   warn "===================================================================="
 
-  sudo rasactl start rasa-x 
+  sudo rasactl start rasa-x
 
 }
 
@@ -901,7 +929,7 @@ echo "  - containerPort: $x
     hostPort: $x
     protocol: TCP" >> /tmp/kind-rasa-config.yaml
 done
-  
+
 }
 
 
