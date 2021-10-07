@@ -344,6 +344,8 @@ check_install_fedora() {
 
   install_rasactl
 
+  set_dns_rasactl_localhost_linux
+
   kind_finalize_rasax
 
 }
@@ -441,6 +443,8 @@ check_install_ubuntu() {
   fi
 
   install_rasactl
+
+  set_dns_rasactl_localhost_linux
 
   kind_finalize_rasax
 
@@ -598,19 +602,33 @@ nameserver 127.0.0.1
 options ndots:1
 EOF
 "
+      allgood "DNS configuration is ready"
     fi
 
-    IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns)
-    if [[ "${IS_CORE_DNS_EXIST}" == "0" ]]; then
-      sudo docker run --name rasactl_coredns -d  -p "127.0.0.1:53:53/udp" tczekajlo/rasactl:coredns-1.8.5 > /dev/null
-    fi
-
-    IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up)
-    if [[ "${IS_CORE_DNS_UP}" == "0" ]]; then
-        sudo docker start rasactl_coredns > /dev/null
-    fi
-    allgood "DNS configuration is ready"
+    run_docker_coredns
   fi
+}
+
+set_dns_rasactl_localhost_linux() {
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    run_docker_coredns
+  fi
+}
+
+run_docker_coredns() {
+  IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns)
+  if [[ "${IS_CORE_DNS_EXIST}" == "0" ]]; then
+    warn "CoreDNS container is not running - launching..."
+    sudo docker run --name rasactl_coredns -d  -p "127.0.0.1:53:53/udp" tczekajlo/rasactl:coredns-1.8.5 > /dev/null
+  fi
+
+  IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up)
+  if [[ "${IS_CORE_DNS_UP}" == "0" ]]; then
+    warn "CoreDNS container is not running - launching..."
+    sudo docker start rasactl_coredns > /dev/null
+  fi
+
+  allgood "CoreDNS container is up"
 }
 
 # Check for sudo rights - required
