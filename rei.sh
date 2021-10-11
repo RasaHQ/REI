@@ -8,7 +8,6 @@ RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
 check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 )
 check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 )
 
-
 # colors
 
 BOLD="$(tput bold 2>/dev/null || printf '')"
@@ -571,6 +570,7 @@ check_os_install_kind()
         info "Detecting OS..."
         macos_version=`sw_vers -productVersion`
         allgood "MacOS ${macos_version}"
+        distribution="macOS"
 
         check_install_macos
     elif [[ "$OSTYPE" == "cygwin" ]]; then
@@ -595,7 +595,9 @@ check_os_install_kind()
 set_dns_rasactl_localhost_macos() {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ ! -e "/etc/resolver/rasactl.localhost" ]]; then
-      warn "Missing DNS configuration for rasactl.localhost domain - configuring..."
+      warn "Missing DNS resolver configuration for rasactl.localhost domain - configuring..."
+      confirm "Add DNS resolver for rasactl.localhost domain"
+      check_sudo
       if [[ ! -d "/etc/resolver" ]]; then
         sudo_cmd "mkdir /etc/resolver"
       fi
@@ -604,9 +606,10 @@ set_dns_rasactl_localhost_macos() {
 search rasactl.localhost
 nameserver 127.0.0.1
 options ndots:1
+timeout 2
 EOF
 "
-      allgood "DNS configuration is ready"
+      allgood "DNS resolver configuration is ready"
     fi
 
     run_docker_coredns
@@ -620,16 +623,16 @@ set_dns_rasactl_localhost_linux() {
 }
 
 run_docker_coredns() {
-  IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns)
-  if [[ "${IS_CORE_DNS_EXIST}" == "0" ]]; then
+  IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns || true)
+  if [[ ${IS_CORE_DNS_EXIST} -eq 0 ]]; then
     warn "CoreDNS container is not running - launching..."
-    sudo docker run --name rasactl_coredns -d  -p "127.0.0.1:53:53/udp" tczekajlo/rasactl:coredns-1.8.5 > /dev/null
+    sudo_cmd "docker run --restart unless-stopped --name rasactl_coredns -d  -p 127.0.0.1:53:53/udp tczekajlo/rasactl:coredns-1.8.5"
   fi
 
-  IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up)
-  if [[ "${IS_CORE_DNS_UP}" == "0" ]]; then
+  IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up || true)
+  if [[ ${IS_CORE_DNS_UP} -eq 0 ]]; then
     warn "CoreDNS container is not running - launching..."
-    sudo docker start rasactl_coredns > /dev/null
+    sudo_cmd "docker start rasactl_coredns"
   fi
 
   allgood "CoreDNS container is up"
@@ -638,7 +641,7 @@ run_docker_coredns() {
 # Check for sudo rights - required
 check_sudo() {
 
-  info "To install everything for you under ${distribution} we need sudo rights"
+  info "To install and configure everything for you under ${distribution} we need sudo rights"
   info "this script will handover all to sudo and not save your password"
 
   if ! has sudo; then
