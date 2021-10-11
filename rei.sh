@@ -626,7 +626,7 @@ run_docker_coredns() {
   IS_CORE_DNS_EXIST=$(sudo docker ps --all --filter name=rasactl_coredns | grep -c rasactl_coredns || true)
   if [[ ${IS_CORE_DNS_EXIST} -eq 0 ]]; then
     warn "CoreDNS container is not running - launching..."
-    sudo_cmd "docker run --restart unless-stopped --name rasactl_coredns -d  -p 127.0.0.1:53:53/udp tczekajlo/rasactl:coredns-1.8.5"
+    sudo_cmd "docker run --restart unless-stopped --name rasactl_coredns -d  -p 127.0.0.1:53:53/udp rasa/rasactl:coredns-1.8.5"
   fi
 
   IS_CORE_DNS_UP=$(sudo docker ps --all --filter name=rasactl_coredns --filter status=running --no-trunc --format "{{.ID}} {{.Status}}" | grep -c Up || true)
