@@ -617,7 +617,8 @@ EOF
 }
 
 set_dns_rasactl_localhost_linux() {
-  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  IS_SYSTEMD_RESOLVED_ACTIVE=$(systemctl is-active systemd-resolved || true)
+  if [[ "$OSTYPE" == "linux-gnu"* && "${IS_SYSTEMD_RESOLVED_ACTIVE}" == "active" ]]; then
     run_docker_coredns
   fi
 }
