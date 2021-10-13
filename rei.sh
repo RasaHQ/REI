@@ -836,7 +836,7 @@ kind_finalize_rasax() {
     info "- https://github.com/RasaHQ/rasactl/"
     info "- link to the docs when it's ready"
     info "================================================================================="
-    exit 1
+    exit 0
 
   else
 
