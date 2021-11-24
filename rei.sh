@@ -804,7 +804,7 @@ wait_for_kind() {
 check_rasactl_latest() {
     # Get tag from release URL
     local latest_release_url="https://github.com/RasaHQ/rasactl/releases"
-    latest_tag=$(curl -Ls https://github.com/RasaHQ/rasactl/releases | grep 'href="/RasaHQ/rasactl/releases/tag/[0-9]*.[0-9]*.[0-9]*\"' | grep -v no-underline | cut -d '"' -f 2 | awk '{n=split($NF,a,"/");print a[n]}' | head -n 1)
+    latest_tag=$(curl -Ls https://api.github.com/repos/RasaHQ/rasactl/releases | grep tag_name | grep -E '[0-9]\.[0-9]\.[0-9]+\"\,$' | head -n1 | sed -E 's/.*"([^"]+)".*/\1/')
 }
 
 # finalize with helm at end
