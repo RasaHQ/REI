@@ -16,11 +16,7 @@ REI will check Requirments and install for the supported OS:
 
 ### Requirements
 
-Supported OS:
-
-- MacOS Catalina+
-- Ubuntu 
-- Manjaro
+- Linux or macOS operating system
 
 to work with REI in an optimal enviroment please use a  System with the following resources at hand
 
