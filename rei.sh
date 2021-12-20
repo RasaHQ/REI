@@ -152,16 +152,17 @@ check_set_arch() {
 #check what Linux distribution we are running
 check_linux_distribution() {
 
+    local distroname
     if [ -n "$(command -v lsb_release)" ]; then
-    	local distroname=$(lsb_release -s -d)
+    	distroname=$(lsb_release -s -d)
     elif [ -f "/etc/os-release" ]; then
-    	local distroname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="')
+    	distroname=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g' | tr -d '="')
     elif [ -f "/etc/debian_version" ]; then
-    	local distroname="Debian $(cat /etc/debian_version)"
+    	distroname="Debian $(cat /etc/debian_version)"
     elif [ -f "/etc/redhat-release" ]; then
-    	local distroname=$(cat /etc/redhat-release)
+    	distroname=$(cat /etc/redhat-release)
     else
-    	local distroname="$(uname -s) $(uname -r)"
+    	distroname="$(uname -s) $(uname -r)"
     fi
 
     allgood "$distroname"
