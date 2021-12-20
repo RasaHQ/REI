@@ -138,7 +138,7 @@ check_set_arch() {
             arch=arm64
             ;;
         *)
-            error "Unsupported architecture $ARCH"
+            error "Unsupported architecture $arch"
     esac
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
