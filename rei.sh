@@ -187,7 +187,7 @@ check_install_macos() {
   if has docker; then
     allgood "found docker"
 
-    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+    if [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; then
 
       open /Applications/Docker.app
       error "Docker Desktop is not running please check for the Docker Desktop GUI window and start it and re-run rsi.sh"
@@ -204,10 +204,10 @@ check_install_macos() {
     allgood "installed Docker Desktop and opening it"
 
     # check if docker is running otherwise start it and wait till its running
-    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+    if [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; then
       warn "Docker Desktop isn't running - i have opened it for your please start it via GUI"
       open /Applications/Docker.app
-      while [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; do
+      while [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; do
         warn "Waiting for Docker to launch..."
         sleep 1
       done
@@ -274,7 +274,7 @@ check_install_fedora() {
   if has docker; then
     allgood "found docker"
 
-    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+    if [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; then
       warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
@@ -365,7 +365,7 @@ check_install_ubuntu() {
   if has docker; then
     allgood "found docker"
 
-    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+    if [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; then
       warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "systemctl start docker.service"
@@ -454,7 +454,7 @@ check_install_arch() {
   if has docker; then
     allgood "found docker"
 
-    if [[ ! `docker stats --no-stream |grep "CONTAINER ID"` ]] &>/dev/null; then
+    if [[ ! $(docker stats --no-stream |grep "CONTAINER ID") ]] &>/dev/null; then
       warn "docker daemon isn't running"
       confirm "starting docker daemon via systemctl"
       sudo_cmd "sudo systemctl start docker.service"
@@ -566,7 +566,7 @@ check_os_install_kind()
         # Mac OSX
         preflight_check
         info "Detecting OS..."
-        macos_version=`sw_vers -productVersion`
+	macos_version=$(sw_vers -productVersion)
         allgood "MacOS ${macos_version}"
         distribution="macOS"
 
@@ -661,9 +661,9 @@ preflight_check() {
     allgood "Preflight check..."
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-      freemem=`free -g | awk '/^Mem:/{print $2}'`
-      freedisk=`df --block-size=1G --output=avail "$PWD" | tail -n1`
-      openports=`sudo lsof -nP -iTCP -sTCP:LISTEN`
+      freemem=$(free -g | awk '/^Mem:/{print $2}')
+      freedisk=$(df --block-size=1G --output=avail "$PWD" | tail -n1)
+      openports=$(sudo lsof -nP -iTCP -sTCP:LISTEN)
     elif [[ "$OSTYPE" == "darwin"* ]]; then
       fmem=$(vm_stat | grep free | awk '{ print $3 }' | sed 's/\.//')
       inmem=$(vm_stat | grep inactive | awk '{ print $3 }' | sed 's/\.//')
@@ -671,8 +671,8 @@ preflight_check() {
       freemem=$((($fmem+specmem)*4096/1048576))
       inactive=$(($inmem*4096/1048576))
       total=$((($freemem+$inactive)))
-      freedisk=`df -g | awk ' { print $4, " ", $9 } ' |grep "\/$" | awk ' { print $1 }'`
-      openports=`lsof -nP -iTCP -sTCP:LISTEN`
+      freedisk=$(df -g | awk ' { print $4, " ", $9 } ' |grep "\/$" | awk ' { print $1 }')
+      openports=$(lsof -nP -iTCP -sTCP:LISTEN)
     fi
 
     if [[ $freedisk -lt 20 ]]; then
@@ -838,7 +838,7 @@ kind_finalize_rasax() {
 
   else
 
-      if [[ `kind get clusters |grep rasa` ]] &>/dev/null; then
+    if [[ $(kind get clusters |grep rasa) ]] &>/dev/null; then
 
       info "found RASA KIND cluster"
       info "checking if KIND cluster is ready..."
