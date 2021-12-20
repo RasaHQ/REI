@@ -12,11 +12,9 @@ check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 )
 
 BOLD="$(tput bold 2>/dev/null || printf '')"
 GREY="$(tput setaf 0 2>/dev/null || printf '')"
-UNDERLINE="$(tput smul 2>/dev/null || printf '')"
 RED="$(tput setaf 1 2>/dev/null || printf '')"
 GREEN="$(tput setaf 2 2>/dev/null || printf '')"
 YELLOW="$(tput setaf 3 2>/dev/null || printf '')"
-BLUE="$(tput setaf 4 2>/dev/null || printf '')"
 MAGENTA="$(tput setaf 5 2>/dev/null || printf '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
 
@@ -154,7 +152,6 @@ check_set_arch() {
 #check what Linux distribution we are running
 check_linux_distribution() {
 
-    kernel=$(uname -r)
     if [ -n "$(command -v lsb_release)" ]; then
     	local distroname=$(lsb_release -s -d)
     elif [ -f "/etc/os-release" ]; then
@@ -803,7 +800,6 @@ wait_for_kind() {
 # check fot the latest rasactl version and put it into LATESTTAG variable
 check_rasactl_latest() {
     # Get tag from release URL
-    local latest_release_url="https://github.com/RasaHQ/rasactl/releases"
     latest_tag=$(curl -Ls https://api.github.com/repos/RasaHQ/rasactl/releases | grep tag_name | grep -E '[0-9]\.[0-9]\.[0-9]+\"\,$' | head -n1 | sed -E 's/.*"([^"]+)".*/\1/')
 }
 
