@@ -835,7 +835,7 @@ kind_finalize_rasax() {
     info "More examples you can find by executing the 'rasactl help start' command."
     info "To learn more about rasactl visit:"
     info "- https://github.com/RasaHQ/rasactl/"
-    info "- link to the docs when it's ready"
+    info "- https://rasa.com/docs/rasa-x/installation-and-setup/install/rasa-ephemeral-installer/introduction"
     info "================================================================================="
     exit 0
 
