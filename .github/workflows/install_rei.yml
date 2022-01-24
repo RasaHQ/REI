@@ -19,7 +19,7 @@ jobs:
       - run: echo "🖥️ run bash rei.sh --yes"
       - name: Install Docker
         if: matrix.os == 'macos-latest'
-        uses: docker-practice/actions-setup-docker@v1
+        uses: fenollp/actions-setup-docker@274a0a50fb4d89b4a950aeed31ce3eb7da7994d3
       - name: run REI install
         run: |
           bash rei.sh --yes
