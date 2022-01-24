@@ -818,17 +818,17 @@ kind_finalize_rasax() {
 		cmd "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml"
 		cmd "kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission"
 
-		info "================================================================================="
-		info "you can now your rasactl to kickstart a local rasax installation run"
-		info "kubectl cluster-info --context kind-rasa"
-		info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
-		info ""
-		info "More examples you can find by executing the 'rasactl help start' command."
-		info "To learn more about rasactl visit:"
-		info "- https://github.com/RasaHQ/rasactl/"
-		info "- link to the docs when it's ready"
-		info "================================================================================="
-		exit 0
+    info "================================================================================="
+    info "you can now your rasactl to kickstart a local rasax installation run"
+    info "kubectl cluster-info --context kind-rasa"
+    info "sudo rasactl start rasa-x --kubeconfig ${HOME}/.kube/config"
+    info ""
+    info "More examples you can find by executing the 'rasactl help start' command."
+    info "To learn more about rasactl visit:"
+    info "- https://github.com/RasaHQ/rasactl/"
+    info "- https://rasa.com/docs/rasa-x/installation-and-setup/install/rasa-ephemeral-installer/introduction"
+    info "================================================================================="
+    exit 0
 
 	else
 
