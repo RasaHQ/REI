@@ -1,4 +1,4 @@
-# RASA Ephermal Installer (REI) 
+# RASA Ephemeral Installer (REI) 
 
 REI will help you to get an easy way to run and test RASA X / RASA OSS on your local workstation with a breeze.
 
@@ -18,7 +18,7 @@ REI will check Requirments and install for the supported OS:
 
 - Linux or macOS operating system
 
-to work with REI in an optimal enviroment please use a  System with the following resources at hand
+To work with REI in an optimal enviroment please use a System with the following resources at hand
 
 Minimum / (Recommended)
 
@@ -53,15 +53,15 @@ bash -c "$(curl -fsSL https://rei.rasa.com/rei.sh)" -- --help
 
 ## FAQ
 
-### how do I see all logfiles ?
+### How do I see all logfiles ?
 
-to get all logfiles from the RASA X / OSS Deployment just run in your terminal
+To get all logfiles from the RASA X / OSS Deployment just run in your terminal
 
 ```bash
 kubectl -n rasa logs -l app.kubernetes.io/name=rasa-x
 ```
 
-### how do i remove the KIND Rasa Cluster locally ?
+### How do i remove the KIND Rasa Cluster locally ?
 
 excute the rsi.sh script with the -u flag
 
@@ -69,7 +69,7 @@ excute the rsi.sh script with the -u flag
 bash rei.sh -u
 ```
 
-### how do i see all running RASA containers ?
+### How do i see all running RASA containers ?
 
 all running pods are inside the rasa namespace via kubectl
 
@@ -77,7 +77,7 @@ all running pods are inside the rasa namespace via kubectl
 kubectl -n rasa get pods
 ```
 
-### how do i access the KIND K8S Cluster via kubectl ?
+### How do i access the KIND K8S Cluster via kubectl ?
 
 ```bash
 kubectl cluster-info --context kind-rasa
