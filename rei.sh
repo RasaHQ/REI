@@ -678,7 +678,7 @@ preflight_check() {
     fi
 
     if [[ $freedisk -lt 20 ]]; then
-       error "We have only ${diskfree} GB of Free Disk which is not enough to Run RASA X / RASA OSS"
+       error "We have only ${freedisk} GB of Free Disk which is not enough to Run RASA X / RASA OSS"
        error "Please free at least 8 GB of local disk and run the script again"
        exit 1
     fi;
