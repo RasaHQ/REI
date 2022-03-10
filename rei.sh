@@ -2,9 +2,6 @@
 
 ### Variables Settings and hashmaps to run everything
 
-RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases"
-RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
-
 check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 )
 check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 )
 
@@ -295,7 +292,7 @@ check_install_fedora() {
     sudo_cmd "gpasswd -a $USER docker"
     cmd "getent group docker"
     error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
-    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "Since this is the first installation of docker the rights for docker and your user need to be updated"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
 
@@ -318,6 +315,16 @@ check_install_fedora() {
     allgood "found helm"
   else
     warn "cannot find helm - installing..."
+    if has openssl; then
+      allgood "found openssl for helm installation"
+    else
+      confirm "installing openssl via yum - required for installation of helm"
+
+      sudo_cmd "yum install openssl -y"
+    
+      allgood "installed openssl"
+    fi
+
     confirm "installing helm via offical helm installer"
 
     cmd "curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
@@ -390,7 +397,7 @@ check_install_ubuntu() {
     sudo_cmd "gpasswd -a $USER docker"
     cmd "getent group docker"
     error "${BOLD}Please ${RED}REBOOT${NO_COLOR} your system !"
-    error "Since this is the first installation of docker the rights for docker and your userboot"
+    error "Since this is the first installation of docker the rights for docker and your user need to be updated"
     error "run the RSI script afterwards again to continue the installation"
     exit 1
 
@@ -550,7 +557,7 @@ check_os_install_kind()
            preflight_check
            info "Detecting OS..."
            allgood "found ${distribution}"
-           check_install_centos
+           check_install_fedora
         elif [[ "${distribution}" =~ "Ubuntu" ]]; then
            preflight_check
            info "Detecting OS..."
