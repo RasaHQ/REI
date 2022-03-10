@@ -315,6 +315,16 @@ check_install_fedora() {
     allgood "found helm"
   else
     warn "cannot find helm - installing..."
+    if has openssl; then
+      allgood "found openssl for helm installation"
+    else
+      confirm "installing openssl via yum"
+
+      sudo_cmd "yum install openssl -y"
+    
+      allgood "installed openssl"
+    fi
+
     confirm "installing helm via offical helm installer"
 
     cmd "curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
