@@ -550,7 +550,7 @@ check_os_install_kind()
            preflight_check
            info "Detecting OS..."
            allgood "found ${distribution}"
-           check_install_centos
+           check_install_fedora
         elif [[ "${distribution}" =~ "Ubuntu" ]]; then
            preflight_check
            info "Detecting OS..."
