@@ -318,7 +318,7 @@ check_install_fedora() {
     if has openssl; then
       allgood "found openssl for helm installation"
     else
-      confirm "installing openssl via yum"
+      confirm "installing openssl via yum - required for installation of helm"
 
       sudo_cmd "yum install openssl -y"
     
