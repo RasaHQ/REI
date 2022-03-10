@@ -2,9 +2,6 @@
 
 ### Variables Settings and hashmaps to run everything
 
-RASACTL_BASE_URL="https://github.com/RasaHQ/rasactl/releases"
-RASACTL_URL="${RASACTL_BASE_URL}/latest/download/starship-${TARGET}.${EXT}"
-
 check_http_ports=( 80 1080 2080 3080 4080 5080 6080 7080 8080 9080 )
 check_https_ports=( 443 1443 2442 3443 4334 5443 6443 7443 8443 9443 )
 
