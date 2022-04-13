@@ -1,4 +1,10 @@
-# RASA Ephemeral Installer (REI)
+# Deprecation Notice 
+
+**REI is deprecated - please use [rasactl](https://github.com/RasaHQ/rasactl) for the future**
+**https://github.com/RasaHQ/rasactl**
+
+
+## RASA Ephemeral Installer (REI)
 
 REI will help you to get an easy way to run and test RASA X / RASA OSS on your local workstation with a breeze.
 
