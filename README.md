@@ -64,7 +64,7 @@ bash -c "$(curl -fsSL https://rei.rasa.com/rei.sh)" -- --help
 To get all logfiles from the RASA X / OSS Deployment just run in your terminal
 
 ```bash
-kubectl -n rasa logs -l app.kubernetes.io/name=rasa-x
+kubectl -n rasa-x logs -l app.kubernetes.io/name=rasa-x
 ```
 
 ### How do I remove the KIND Rasa Cluster locally ?
@@ -80,7 +80,7 @@ bash rei.sh -u
 All running pods are inside the rasa namespace via kubectl
 
 ```bash
-kubectl -n rasa get pods
+kubectl -n rasa-x get pods
 ```
 
 ### How do I access the KIND K8S Cluster via kubectl ?
